@@ -1,0 +1,140 @@
+:root {
+  --ink: #0b0d0c;
+  --ink-soft: #121512;
+  --paper: #f2f0e8;
+  --muted: #9da49c;
+  --line: rgba(242, 240, 232, 0.14);
+  --acid: #c7ff42;
+  --acid-deep: #9bd624;
+  --cobalt: #8da2ff;
+  color: var(--paper);
+  font-family: 'Cabinet Grotesk', 'Arial Narrow', Arial, sans-serif;
+  font-synthesis: none;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--ink);
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+}
+
+body {
+  min-width: 320px;
+  margin: 0;
+  background: var(--ink);
+  color: var(--paper);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+a {
+  color: inherit;
+}
+
+::selection {
+  background: var(--acid);
+  color: var(--ink);
+}
+
+.ant-message-notice-content {
+  border: 1px solid var(--line);
+  background: #171a17 !important;
+  color: var(--paper);
+}
+
+.ant-modal-content,
+.ant-modal-header {
+  background: #171a17 !important;
+  color: var(--paper) !important;
+}
+
+.ant-modal-title,
+.ant-form-item-label > label,
+.ant-descriptions-item-label,
+.ant-descriptions-item-content {
+  color: var(--paper) !important;
+}
+
+.ant-table-wrapper,
+.ant-card {
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.ant-table,
+.ant-table-thead > tr > th,
+.ant-table-tbody > tr > td,
+.ant-card,
+.ant-card-head {
+  background: #141714 !important;
+  color: var(--paper) !important;
+  border-color: var(--line) !important;
+}
+
+.ant-table-tbody > tr:hover > td {
+  background: #1c211a !important;
+}
+
+.ant-input,
+.ant-input-affix-wrapper,
+.ant-select-selector,
+.ant-input-number,
+.ant-picker {
+  border-color: var(--line) !important;
+  background: #101310 !important;
+  color: var(--paper) !important;
+}
+
+.ant-input::placeholder,
+.ant-input input::placeholder {
+  color: #747b73 !important;
+}
+
+.ant-btn-primary {
+  border-color: var(--acid) !important;
+  background: var(--acid) !important;
+  color: var(--ink) !important;
+  box-shadow: none !important;
+  font-weight: 700;
+}
+
+.ant-btn-primary:hover {
+  border-color: #dcff82 !important;
+  background: #dcff82 !important;
+  color: var(--ink) !important;
+}
+
+#userManagePage,
+#chatManagePage,
+#appManagePage,
+#appEditPage {
+  width: min(1440px, calc(100% - 40px));
+  margin: 120px auto 48px;
+  padding: 28px;
+  border: 1px solid var(--line);
+  border-radius: 28px;
+  background: #101310 !important;
+}
+
+@media (max-width: 760px) {
+  #userManagePage,
+  #chatManagePage,
+  #appManagePage,
+  #appEditPage {
+    width: calc(100% - 24px);
+    margin-top: 88px;
+    padding: 16px;
+  }
+}

@@ -1,0 +1,30 @@
+services:
+  mysql:
+    image: mysql:8.4
+    environment:
+      MYSQL_DATABASE: zerocode
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-zerocode_local}
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./sql/create_table.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+    command: --mysql-native-password=ON
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
+  nacos:
+    image: nacos/nacos-server:v2.4.3
+    environment:
+      MODE: standalone
+      NACOS_AUTH_ENABLE: "false"
+    ports:
+      - "8848:8848"
+      - "9848:9848"
+      - "9849:9849"
+
+volumes:
+  mysql-data:

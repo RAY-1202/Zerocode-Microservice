@@ -1,5 +1,19 @@
 ### CUSTOM ###
 application.yml
+.env
+.env.*
+!.env.example
+.local/
+**/tmp/
+**/logs/
+
+# Frontend
+zerocode-frontend/node_modules/
+zerocode-frontend/dist/
+zerocode-frontend/.env.local
+zerocode-frontend/output/
+zerocode-frontend/.playwright-cli/
+zerocode-frontend/vibe/
 
 HELP.md
 target/

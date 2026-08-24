@@ -77,7 +77,7 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App>  implements AppS
     @Resource
     private AiCodeGenTypeRoutingServiceFactory aiCodeGenTypeRoutingServiceFactory;
 
-    @Value("${code.deploy-host:http://localhost:8083}")
+    @Value("${code.deploy-host:http://localhost:8125/api/deploy}")
     private String deployHost;
 
     /**
@@ -323,8 +323,14 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App>  implements AppS
         // 应用名称暂时为 initPrompt 前 12 位
         app.setAppName(initPrompt.substring(0, Math.min(initPrompt.length(), 12)));
         // 使用 AI 智能选择代码生成类型(多例模式）
-        AiCodeGenTypeRoutingService routingService = aiCodeGenTypeRoutingServiceFactory.createAiCodeGenTypeRoutingService();
-        CodeGenTypeEnum selectedCodeGenType = routingService.routeCodeGenType(initPrompt);
+        CodeGenTypeEnum selectedCodeGenType;
+        try {
+            AiCodeGenTypeRoutingService routingService = aiCodeGenTypeRoutingServiceFactory.createAiCodeGenTypeRoutingService();
+            selectedCodeGenType = routingService.routeCodeGenType(initPrompt);
+        } catch (RuntimeException e) {
+            log.warn("代码类型路由失败，使用 HTML: {}", e.getClass().getSimpleName());
+            selectedCodeGenType = CodeGenTypeEnum.HTML;
+        }
         app.setCodeGenType(selectedCodeGenType.getValue());
         // 插入数据库
         boolean result = this.save(app);

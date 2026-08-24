@@ -61,9 +61,8 @@ public class JsonMessageStreamHandler {
                     chatHistoryService.addChatMessage(appId, aiResponse, ChatHistoryMessageTypeEnum.AI.getValue(), loginUser.getId());
                 })
                 .doOnError(error -> {
-                    // 如果AI回复失败，也要记录错误消息
-                    String errorMessage = "AI回复失败: " + error.getMessage();
-                    chatHistoryService.addChatMessage(appId, errorMessage, ChatHistoryMessageTypeEnum.AI.getValue(), loginUser.getId());
+                    log.warn("AI 回复失败: {}", error.getClass().getSimpleName());
+                    chatHistoryService.addChatMessage(appId, "AI 服务暂时不可用，请稍后重试。", ChatHistoryMessageTypeEnum.AI.getValue(), loginUser.getId());
                 });
     }
 

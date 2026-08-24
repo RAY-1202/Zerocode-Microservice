@@ -1,0 +1,56 @@
+spring:
+  application:
+    name: zerocode-app
+  session:
+    store-type: redis
+    timeout: 2592000
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: "${MYSQL_URL:jdbc:mysql://localhost:3307/zerocode?useUnicode=true&characterEncoding=utf-8&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai}"
+    username: "${MYSQL_USERNAME:root}"
+    password: "${MYSQL_PASSWORD:zerocode_local}"
+  data:
+    redis:
+      host: "${REDIS_HOST:localhost}"
+      port: "${REDIS_PORT:6379}"
+      password: "${REDIS_PASSWORD:}"
+server:
+  port: 8125
+  servlet:
+    context-path: /api
+langchain4j:
+  open-ai:
+    chat-model: &ai-model
+      base-url: "${AI_BASE_URL:https://api.moonshot.cn/v1}"
+      api-key: "${AI_API_KEY:replace-me}"
+      model-name: "${AI_MODEL:kimi-k2-turbo-preview}"
+      max-tokens: 131072
+      log-requests: false
+      log-responses: false
+      max-retries: 3
+    streaming-chat-model: *ai-model
+    reasoning-streaming-chat-model: *ai-model
+    routing-chat-model:
+      base-url: "${ROUTING_AI_BASE_URL:https://dashscope.aliyuncs.com/compatible-mode/v1}"
+      api-key: "${ROUTING_AI_API_KEY:replace-me}"
+      model-name: "${ROUTING_AI_MODEL:qwen-turbo}"
+      max-tokens: 100
+      log-requests: false
+      log-responses: false
+springdoc:
+  group-configs:
+    - group: default
+      packages-to-scan: com.ray.zerocode.controller
+knife4j:
+  enable: true
+dubbo:
+  registry:
+    address: "${NACOS_ADDRESS:nacos://127.0.0.1:8848}"
+    register-mode: instance
+  protocol:
+    name: tri
+    port: 50053
+  consumer:
+    timeout: 120000
+  provider:
+    timeout: 120000

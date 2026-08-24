@@ -4,6 +4,7 @@ import com.mybatisflex.core.paginate.Page;
 import com.mybatisflex.core.query.QueryWrapper;
 import com.ray.zerocode.annotation.AuthCheck;
 import com.ray.zerocode.common.BaseResponse;
+import com.ray.zerocode.common.DeleteRequest;
 import com.ray.zerocode.common.ResultUtils;
 import com.ray.zerocode.constant.UserConstant;
 import com.ray.zerocode.exception.ErrorCode;
@@ -15,7 +16,6 @@ import com.ray.zerocode.model.entity.User;
 import com.ray.zerocode.service.ChatHistoryService;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -68,6 +68,15 @@ public class ChatHistoryController {
         QueryWrapper queryWrapper = chatHistoryService.getQueryWrapper(chatHistoryQueryRequest);
         Page<ChatHistory> result = chatHistoryService.page(Page.of(pageNum, pageSize), queryWrapper);
         return ResultUtils.success(result);
+    }
+
+    @PostMapping("/admin/delete")
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    public BaseResponse<Boolean> deleteChatHistory(@RequestBody DeleteRequest deleteRequest) {
+        ThrowUtils.throwIf(deleteRequest == null || deleteRequest.getId() <= 0, ErrorCode.PARAMS_ERROR);
+        boolean result = chatHistoryService.removeById(deleteRequest.getId());
+        ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
+        return ResultUtils.success(true);
     }
 
 }
