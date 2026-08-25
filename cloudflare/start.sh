@@ -7,6 +7,10 @@ if [[ -z "${MYSQL_PASSWORD:-}" || -z "${AI_API_KEY:-}" ]]; then
 fi
 
 install -d -o mysql -g mysql /run/mysqld
+if [[ ! -d /var/lib/mysql/mysql ]]; then
+  chown -R mysql:mysql /var/lib/mysql
+  mariadb-install-db --user=mysql --datadir=/var/lib/mysql >/dev/null
+fi
 mariadbd --user=mysql --bind-address=127.0.0.1 &
 until mariadb-admin ping --silent; do sleep 1; done
 
