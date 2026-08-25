@@ -23,8 +23,6 @@ watch(
 const links = computed(() => {
   const items = [
     { key: '/', label: '作品广场' },
-    { key: 'pricing', label: '定价', external: true },
-    { key: 'docs', label: '文档', external: true },
     { key: 'github', label: 'GitHub', external: true },
   ]
 
@@ -43,8 +41,6 @@ const goTo = (item: { key: string; external?: boolean }) => {
   if (item.external) {
     const targets: Record<string, string> = {
       github: 'https://github.com/RAY-1202/Zerocode-Microservice',
-      docs: 'https://github.com/RAY-1202/Zerocode-Microservice#本地启动',
-      pricing: 'https://github.com/RAY-1202/Zerocode-Microservice',
     }
     window.open(targets[item.key], '_blank', 'noopener,noreferrer')
     return
