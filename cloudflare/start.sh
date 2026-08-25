@@ -27,7 +27,4 @@ redis-server --save '' --appendonly no --daemonize yes
 
 java -jar /app/user.jar &
 java -jar /app/screenshot.jar &
-
-until (echo > /dev/tcp/127.0.0.1/50051) 2>/dev/null; do sleep 1; done
-until (echo > /dev/tcp/127.0.0.1/50052) 2>/dev/null; do sleep 1; done
 exec java -jar /app/app.jar
