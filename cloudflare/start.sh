@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if [[ -z "${MYSQL_PASSWORD:-}" || -z "${AI_API_KEY:-}" ]]; then
+  echo "Required runtime secrets are missing" >&2
+  exit 1
+fi
+
+install -d -o mysql -g mysql /run/mysqld
+mariadbd --user=mysql --bind-address=127.0.0.1 &
+until mariadb-admin ping --silent; do sleep 1; done
+
+mariadb <<SQL
+CREATE DATABASE IF NOT EXISTS zerocode_microservice CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE USER IF NOT EXISTS 'zerocode'@'localhost' IDENTIFIED BY '${MYSQL_PASSWORD}';
+ALTER USER 'zerocode'@'localhost' IDENTIFIED BY '${MYSQL_PASSWORD}';
+GRANT ALL PRIVILEGES ON zerocode_microservice.* TO 'zerocode'@'localhost';
+FLUSH PRIVILEGES;
+SQL
+mariadb zerocode_microservice < /app/schema.sql
+
+redis-server --save '' --appendonly no --daemonize yes
+
+java -jar /app/user.jar &
+java -jar /app/screenshot.jar &
+
+until (echo > /dev/tcp/127.0.0.1/50051) 2>/dev/null; do sleep 1; done
+until (echo > /dev/tcp/127.0.0.1/50052) 2>/dev/null; do sleep 1; done
+exec java -jar /app/app.jar

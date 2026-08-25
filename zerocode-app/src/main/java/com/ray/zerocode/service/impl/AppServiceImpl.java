@@ -67,10 +67,10 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App>  implements AppS
     @Resource
     private VueProjectBuilder vueProjectBuilder;
 
-    @DubboReference
+    @DubboReference(url = "${ZEROCODE_USER_SERVICE_URL:}")
     private InnerUserService userService;
 
-    @DubboReference
+    @DubboReference(url = "${ZEROCODE_SCREENSHOT_SERVICE_URL:}")
     private InnerScreenshotService screenshotService;
 
 

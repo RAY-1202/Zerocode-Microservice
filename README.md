@@ -7,7 +7,7 @@
 
 从一句自然语言需求开始，生成、预览、修改、下载并发布一个可访问的网站。仓库采用前后端单仓结构，包含 Vue 3 创作工作台和 Spring Boot 微服务。
 
-[查看 Cloudflare 前端预览](https://zerocode-microservice.yray1202.workers.dev)
+[在线体验](https://zerocode-microservice.yray1202.workers.dev)
 
 ![Zerocode desktop home](docs/home-desktop.webp)
 
@@ -107,6 +107,8 @@ npm run dev
 
 请求和响应正文日志默认关闭，避免提示词、用户内容和授权信息进入日志。无可用生成模型时，HTML 模式会返回安全的本地模板，便于继续联调。
 
+四条 AI 调用链默认统一使用 `https://api.deepseek.com` 和 `deepseek-v4-flash`，密钥仅通过 `AI_API_KEY` 注入。
+
 ## 测试
 
 ```bash
@@ -120,7 +122,9 @@ npm audit
 
 ## Cloudflare
 
-前端使用 Workers Static Assets 托管，SPA 路由配置位于 `zerocode-frontend/wrangler.jsonc`：
+Cloudflare Worker 在同一域名下提供前端静态资源和 `/api`。API 请求进入一个 Container，容器内运行三个 Spring Boot 服务、Redis 和 MariaDB，服务间调用使用本机 Dubbo Triple 端口。
+
+部署配置位于 `zerocode-frontend/wrangler.jsonc`，容器镜像入口位于仓库根目录 `Dockerfile`：
 
 ```bash
 cd zerocode-frontend
@@ -128,7 +132,9 @@ npm run build
 npx wrangler deploy
 ```
 
-Java 服务可使用 Cloudflare Containers，需 Workers Paid 计划和外部持久化 MySQL、Redis、对象存储。Containers 本地磁盘会随实例休眠重置，因此数据库和 Nacos 数据不能只保存在容器磁盘中。
+也可以在 GitHub Actions 中手动运行 `Deploy Cloudflare` 工作流。部署前需要在 Cloudflare Worker Secret 中设置 `AI_API_KEY`、`MYSQL_PASSWORD` 和 `COS_*`，在 GitHub Secrets 中设置 `CLOUDFLARE_API_TOKEN`、`CLOUDFLARE_ACCOUNT_ID`。
+
+当前在线版本定位为可完整体验的演示环境。Cloudflare Containers 本地磁盘为临时存储，实例被替换后业务数据和已生成文件会重置。需要长期保存线上用户数据时，将 `MYSQL_URL` 切换到受控网络中的外部 MySQL，并把生成产物迁移到对象存储。
 
 ## 目录
 
@@ -139,7 +145,8 @@ Java 服务可使用 Cloudflare Containers，需 Workers Paid 计划和外部持
 ├── zerocode-user           用户服务
 ├── zerocode-screenshot     截图服务
 ├── zerocode-common         公共模型与工具
-├── zerocode-service-client Dubbo 服务接口
+├── zerocode-client         Dubbo 服务接口
+├── cloudflare              容器启动脚本
 ├── sql                     数据库结构
 ├── docs                    项目截图
 └── compose.yaml            本地基础设施

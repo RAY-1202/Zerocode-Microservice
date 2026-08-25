@@ -21,9 +21,9 @@ server:
 langchain4j:
   open-ai:
     chat-model: &ai-model
-      base-url: "${AI_BASE_URL:https://api.moonshot.cn/v1}"
+      base-url: "${AI_BASE_URL:https://api.deepseek.com}"
       api-key: "${AI_API_KEY:replace-me}"
-      model-name: "${AI_MODEL:kimi-k2-turbo-preview}"
+      model-name: "${AI_MODEL:deepseek-v4-flash}"
       max-tokens: 131072
       log-requests: false
       log-responses: false
@@ -31,9 +31,9 @@ langchain4j:
     streaming-chat-model: *ai-model
     reasoning-streaming-chat-model: *ai-model
     routing-chat-model:
-      base-url: "${ROUTING_AI_BASE_URL:https://dashscope.aliyuncs.com/compatible-mode/v1}"
-      api-key: "${ROUTING_AI_API_KEY:replace-me}"
-      model-name: "${ROUTING_AI_MODEL:qwen-turbo}"
+      base-url: "${ROUTING_AI_BASE_URL:${AI_BASE_URL:https://api.deepseek.com}}"
+      api-key: "${ROUTING_AI_API_KEY:${AI_API_KEY:replace-me}}"
+      model-name: "${ROUTING_AI_MODEL:${AI_MODEL:deepseek-v4-flash}}"
       max-tokens: 100
       log-requests: false
       log-responses: false

@@ -1,0 +1,8 @@
+.git
+.github
+.local
+**/target
+**/node_modules
+**/application.yml
+zerocode-frontend/dist
+tmp
