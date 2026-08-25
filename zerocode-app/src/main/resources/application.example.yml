@@ -52,6 +52,7 @@ dubbo:
     name: tri
     port: 50053
   consumer:
+    check: false
     timeout: 120000
   provider:
     timeout: 120000

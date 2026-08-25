@@ -25,6 +25,9 @@ mariadb zerocode_microservice < /app/schema.sql
 
 redis-server --save '' --appendonly no --daemonize yes
 
-java -jar /app/user.jar &
-java -jar /app/screenshot.jar &
+(
+  until (echo > /dev/tcp/127.0.0.1/8125) 2>/dev/null; do sleep 1; done
+  java -jar /app/user.jar &
+  exec java -jar /app/screenshot.jar
+) &
 exec java -jar /app/app.jar
