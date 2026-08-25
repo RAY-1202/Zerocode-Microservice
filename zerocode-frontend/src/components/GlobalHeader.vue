@@ -22,7 +22,9 @@ watch(
 
 const links = computed(() => {
   const items = [
-    { key: '/', label: '创作首页' },
+    { key: '/', label: '作品广场' },
+    { key: 'pricing', label: '定价', external: true },
+    { key: 'docs', label: '文档', external: true },
     { key: 'github', label: 'GitHub', external: true },
   ]
 
@@ -39,7 +41,12 @@ const links = computed(() => {
 
 const goTo = (item: { key: string; external?: boolean }) => {
   if (item.external) {
-    window.open('https://github.com/RAY-1202/Zerocode-Microservice', '_blank', 'noopener,noreferrer')
+    const targets: Record<string, string> = {
+      github: 'https://github.com/RAY-1202/Zerocode-Microservice',
+      docs: 'https://github.com/RAY-1202/Zerocode-Microservice#本地启动',
+      pricing: 'https://github.com/RAY-1202/Zerocode-Microservice',
+    }
+    window.open(targets[item.key], '_blank', 'noopener,noreferrer')
     return
   }
   router.push(item.key)
@@ -75,7 +82,7 @@ const doLogout = async () => {
           @click="goTo(item)"
         >
           {{ item.label }}
-          <GithubOutlined v-if="item.external" />
+          <GithubOutlined v-if="item.key === 'github'" />
         </button>
       </nav>
 
@@ -93,7 +100,8 @@ const doLogout = async () => {
             </a-menu>
           </template>
         </a-dropdown>
-        <RouterLink v-else class="login-button" to="/user/login">登录创作</RouterLink>
+        <RouterLink v-else class="plain-login" to="/user/login">登录</RouterLink>
+        <RouterLink class="login-button" to="/">开始创作</RouterLink>
         <button class="mobile-toggle" type="button" aria-label="打开导航" @click="mobileOpen = !mobileOpen">
           <MenuOutlined />
         </button>
@@ -112,22 +120,20 @@ const doLogout = async () => {
 .site-header {
   position: fixed;
   z-index: 1000;
-  top: 18px;
+  top: 0;
   right: 0;
   left: 0;
   pointer-events: none;
+  border-bottom: 1px solid #e7e9e2;
+  background: rgba(249, 250, 247, 0.9);
+  backdrop-filter: blur(18px);
 }
 
 .header-shell {
-  width: min(1180px, calc(100% - 32px));
-  height: 64px;
+  width: min(1440px, calc(100% - 64px));
+  height: 76px;
   margin: 0 auto;
-  padding: 0 12px 0 18px;
-  border: 1px solid rgba(242, 240, 232, 0.17);
-  border-radius: 18px;
-  background: rgba(12, 15, 12, 0.78);
-  box-shadow: 0 18px 80px rgba(0, 0, 0, 0.26);
-  backdrop-filter: blur(22px);
+  padding: 0;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -144,31 +150,32 @@ const doLogout = async () => {
 
 .brand {
   gap: 11px;
-  color: var(--paper);
-  font-size: 19px;
+  color: #11130f;
+  font-size: 21px;
   font-weight: 800;
   letter-spacing: -0.03em;
   text-decoration: none;
 }
 
 .brand-mark {
-  width: 25px;
-  height: 25px;
+  width: 30px;
+  height: 26px;
   position: relative;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 3px;
-  transform: rotate(-8deg);
+  display: block;
 }
 
 .brand-mark span {
-  border-radius: 4px;
-  background: var(--acid);
+  position: absolute;
+  width: 28px;
+  height: 9px;
+  border-radius: 2px;
+  background: #11130f;
+  transform: skewX(-30deg);
 }
 
 .brand-mark span:last-child {
-  margin-top: 7px;
-  background: var(--paper);
+  top: 15px;
+  transform: skewX(-30deg) rotate(180deg);
 }
 
 .desktop-nav {
@@ -180,7 +187,7 @@ const doLogout = async () => {
   border: 0;
   border-radius: 11px;
   background: transparent;
-  color: #a8aea7;
+  color: #4c514a;
   cursor: pointer;
   font-size: 14px;
   transition: 180ms ease;
@@ -188,8 +195,8 @@ const doLogout = async () => {
 
 .nav-link:hover,
 .nav-link.active {
-  background: rgba(242, 240, 232, 0.09);
-  color: var(--paper);
+  background: #eef0ea;
+  color: #11130f;
 }
 
 .account-actions {
@@ -200,7 +207,7 @@ const doLogout = async () => {
 .mobile-toggle {
   border: 0;
   background: transparent;
-  color: var(--paper);
+  color: #11130f;
   cursor: pointer;
 }
 
@@ -208,11 +215,19 @@ const doLogout = async () => {
   gap: 9px;
 }
 
+.plain-login {
+  padding: 10px 14px;
+  color: #11130f;
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
 .login-button {
-  padding: 11px 17px;
-  border-radius: 11px;
-  background: var(--acid);
-  color: var(--ink);
+  padding: 12px 19px;
+  border-radius: 999px;
+  background: #c8f43d;
+  color: #11130f;
   font-size: 14px;
   font-weight: 800;
   text-decoration: none;
@@ -228,9 +243,9 @@ const doLogout = async () => {
   width: min(480px, calc(100% - 32px));
   margin: 8px auto 0;
   padding: 10px;
-  border: 1px solid var(--line);
+  border: 1px solid #e1e4db;
   border-radius: 16px;
-  background: rgba(12, 15, 12, 0.96);
+  background: #f9faf7;
   pointer-events: auto;
 }
 
@@ -238,9 +253,9 @@ const doLogout = async () => {
   width: 100%;
   padding: 13px;
   border: 0;
-  border-bottom: 1px solid var(--line);
+  border-bottom: 1px solid #e1e4db;
   background: transparent;
-  color: var(--paper);
+  color: #11130f;
   text-align: left;
 }
 
@@ -250,12 +265,12 @@ const doLogout = async () => {
 
 @media (max-width: 760px) {
   .site-header {
-    top: 10px;
+    top: 0;
   }
 
   .header-shell {
-    width: calc(100% - 20px);
-    height: 58px;
+    width: calc(100% - 28px);
+    height: 66px;
   }
 
   .desktop-nav,
@@ -269,6 +284,10 @@ const doLogout = async () => {
 
   .login-button {
     padding: 9px 12px;
+  }
+
+  .plain-login {
+    display: none;
   }
 }
 </style>

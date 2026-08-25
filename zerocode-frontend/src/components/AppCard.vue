@@ -40,15 +40,16 @@ const emit = defineEmits<Emits>()
 
 <style scoped>
 .app-card {
-  border: 1px solid var(--line);
+  border: 1px solid #dfe2d8;
   border-radius: 20px;
-  background: #111411;
+  background: #fff;
   overflow: hidden;
   transition: transform 260ms ease, border-color 260ms ease;
 }
 
 .app-card:hover {
-  border-color: rgba(199, 255, 66, 0.48);
+  border-color: #acd82c;
+  box-shadow: 0 20px 54px rgba(54, 64, 39, 0.08);
   transform: translateY(-5px);
 }
 
@@ -56,8 +57,8 @@ const emit = defineEmits<Emits>()
   position: relative;
   height: 220px;
   background:
-    linear-gradient(135deg, rgba(199, 255, 66, 0.12), transparent 55%),
-    #181c18;
+    linear-gradient(135deg, rgba(200, 244, 61, 0.16), transparent 55%),
+    #eef0ea;
   overflow: hidden;
 }
 
@@ -130,13 +131,13 @@ const emit = defineEmits<Emits>()
 }
 
 .app-info h3 {
-  color: var(--paper);
+  color: #11130f;
   font-size: 16px;
 }
 
 .app-info p {
   margin-top: 3px;
-  color: var(--muted);
+  color: #6d736b;
   font-size: 13px;
 }
 

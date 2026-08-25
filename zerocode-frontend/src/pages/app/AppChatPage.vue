@@ -1,197 +1,189 @@
 <template>
   <div id="appChatPage">
-    <!-- 顶部栏 -->
-    <div class="header-bar">
-      <div class="header-left">
-        <h1 class="app-name">{{ appInfo?.appName || '网站生成器' }}</h1>
-        <a-tag v-if="appInfo?.codeGenType" color="blue" class="code-gen-type-tag">
-          {{ formatCodeGenType(appInfo.codeGenType) }}
-        </a-tag>
+    <header class="studio-header">
+      <div class="studio-identity">
+        <RouterLink class="studio-brand" to="/" aria-label="返回 Zerocode 首页">
+          <span class="studio-mark" aria-hidden="true"><i></i><i></i></span>
+          <strong>Zerocode</strong>
+        </RouterLink>
+        <span class="header-divider"></span>
+        <button class="project-name" type="button" @click="showAppDetail">
+          <span>我的项目</span>
+          <b>/</b>
+          {{ appInfo?.appName || '网站生成器' }}
+        </button>
       </div>
-      <div class="header-right">
-        <a-button type="default" @click="showAppDetail">
-          <template #icon>
-            <InfoCircleOutlined />
-          </template>
-          详情
-        </a-button>
-        <a-button
-          type="primary"
-          ghost
-          @click="downloadCode"
-          :loading="downloading"
-          :disabled="!isOwner"
-        >
-          <template #icon>
-            <DownloadOutlined />
-          </template>
+
+      <div class="workspace-switcher" aria-label="工作区模式">
+        <button class="active" type="button">预览</button>
+        <button type="button" disabled>代码</button>
+        <button type="button" disabled>对比</button>
+      </div>
+
+      <div class="studio-actions">
+        <span v-if="appInfo?.codeGenType" class="mode-label">
+          {{ formatCodeGenType(appInfo.codeGenType) }}
+        </span>
+        <a-button @click="downloadCode" :loading="downloading" :disabled="!isOwner">
+          <template #icon><DownloadOutlined /></template>
           下载
         </a-button>
-        <a-button type="primary" @click="deployApp" :loading="deploying">
-          <template #icon>
-            <CloudUploadOutlined />
-          </template>
+        <a-button class="deploy-button" @click="deployApp" :loading="deploying">
+          <template #icon><CloudUploadOutlined /></template>
           部署
         </a-button>
       </div>
-    </div>
+    </header>
 
-    <!-- 主要内容区域 -->
-    <div class="main-content">
-      <!-- 左侧对话区域 -->
-      <div class="chat-section">
-        <!-- 消息区域 -->
-        <div class="messages-container" ref="messagesContainer">
-          <!-- 加载更多按钮 -->
+    <main class="studio-main">
+      <section class="chat-section" aria-label="生成对话">
+        <div class="panel-heading">
+          <div>
+            <p>和 Zerocode 一起构建</p>
+            <span>{{ isGenerating ? '正在生成你的页面' : '描述需求，继续完善结果' }}</span>
+          </div>
+          <button type="button" aria-label="应用详情" @click="showAppDetail"><InfoCircleOutlined /></button>
+        </div>
+
+        <div ref="messagesContainer" class="messages-container">
           <div v-if="hasMoreHistory" class="load-more-container">
-            <a-button type="link" @click="loadMoreHistory" :loading="loadingHistory" size="small">
+            <a-button type="link" size="small" :loading="loadingHistory" @click="loadMoreHistory">
               加载更多历史消息
             </a-button>
           </div>
           <div v-for="(message, index) in messages" :key="index" class="message-item">
             <div v-if="message.type === 'user'" class="user-message">
-              <div class="message-content">{{ message.content }}</div>
               <div class="message-avatar">
                 <a-avatar :src="loginUserStore.loginUser.userAvatar" />
               </div>
+              <div class="message-content">{{ message.content }}</div>
             </div>
             <div v-else class="ai-message">
-              <div class="message-avatar">
-                <a-avatar :src="aiAvatar" />
-              </div>
+              <div class="message-avatar ai-avatar"><span>Z</span></div>
               <div class="message-content">
                 <MarkdownRenderer v-if="message.content" :content="message.content" />
                 <div v-if="message.loading" class="loading-indicator">
                   <a-spin size="small" />
-                  <span>AI 正在思考...</span>
+                  <span>正在整理页面结构</span>
                 </div>
               </div>
             </div>
           </div>
+
+          <div v-if="!messages.length && !loadingHistory" class="empty-conversation">
+            <span>Z</span>
+            <h2>从一句清晰的描述开始。</h2>
+            <p>告诉我网站的用途、内容和视觉方向。</p>
+          </div>
         </div>
 
-        <!-- 选中元素信息展示 -->
-        <a-alert
-          v-if="selectedElementInfo"
-          class="selected-element-alert"
-          type="info"
-          closable
-          @close="clearSelectedElement"
-        >
-          <template #message>
-            <div class="selected-element-info">
-              <div class="element-header">
-                <span class="element-tag">
-                  选中元素：{{ selectedElementInfo.tagName.toLowerCase() }}
-                </span>
-                <span v-if="selectedElementInfo.id" class="element-id">
-                  #{{ selectedElementInfo.id }}
-                </span>
-                <span v-if="selectedElementInfo.className" class="element-class">
-                  .{{ selectedElementInfo.className.split(' ').join('.') }}
-                </span>
-              </div>
-              <div class="element-details">
-                <div v-if="selectedElementInfo.textContent" class="element-item">
-                  内容: {{ selectedElementInfo.textContent.substring(0, 50) }}
-                  {{ selectedElementInfo.textContent.length > 50 ? '...' : '' }}
-                </div>
-                <div v-if="selectedElementInfo.pagePath" class="element-item">
-                  页面路径: {{ selectedElementInfo.pagePath }}
-                </div>
-                <div class="element-item">
-                  选择器:
-                  <code class="element-selector-code">{{ selectedElementInfo.selector }}</code>
-                </div>
-              </div>
-            </div>
-          </template>
-        </a-alert>
-
-        <!-- 用户消息输入框 -->
         <div class="input-container">
           <div class="input-wrapper">
-            <a-tooltip v-if="!isOwner" title="无法在别人的作品下对话哦~" placement="top">
+            <a-tooltip v-if="!isOwner" title="仅作品所有者可以继续修改" placement="top">
               <a-textarea
                 v-model:value="userInput"
                 :placeholder="getInputPlaceholder()"
-                :rows="4"
+                :rows="3"
                 :maxlength="1000"
-                @keydown.enter.prevent="sendMessage"
                 :disabled="isGenerating || !isOwner"
+                @keydown.enter.prevent="sendMessage"
               />
             </a-tooltip>
             <a-textarea
               v-else
               v-model:value="userInput"
               :placeholder="getInputPlaceholder()"
-              :rows="4"
+              :rows="3"
               :maxlength="1000"
-              @keydown.enter.prevent="sendMessage"
               :disabled="isGenerating"
+              @keydown.enter.prevent="sendMessage"
             />
             <div class="input-actions">
-              <a-button
-                type="primary"
-                @click="sendMessage"
-                :loading="isGenerating"
-                :disabled="!isOwner"
-              >
-                <template #icon>
-                  <SendOutlined />
-                </template>
+              <a-button type="primary" :loading="isGenerating" :disabled="!isOwner" @click="sendMessage">
+                <template #icon><SendOutlined /></template>
               </a-button>
             </div>
           </div>
         </div>
-      </div>
-      <!-- 右侧网页展示区域 -->
-      <div class="preview-section">
-        <div class="preview-header">
-          <h3>生成后的网页展示</h3>
-          <div class="preview-actions">
-            <a-button
-              v-if="isOwner && previewUrl"
-              type="link"
-              :danger="isEditMode"
-              @click="toggleEditMode"
-              :class="{ 'edit-mode-active': isEditMode }"
-              style="padding: 0; height: auto; margin-right: 12px"
-            >
-              <template #icon>
-                <EditOutlined />
-              </template>
-              {{ isEditMode ? '退出编辑' : '编辑模式' }}
-            </a-button>
-            <a-button v-if="previewUrl" type="link" @click="openInNewTab">
-              <template #icon>
-                <ExportOutlined />
-              </template>
-              新窗口打开
-            </a-button>
+      </section>
+
+      <section class="preview-section" aria-label="实时预览">
+        <div class="preview-toolbar">
+          <div class="browser-address">
+            <span class="browser-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+            <span>{{ previewDisplayUrl }}</span>
           </div>
+          <div class="viewport-controls" aria-label="预览尺寸">
+            <button
+              v-for="option in viewportOptions"
+              :key="option.value"
+              type="button"
+              :class="{ active: previewViewport === option.value }"
+              :aria-label="option.label"
+              @click="previewViewport = option.value"
+            >
+              <component :is="option.icon" />
+            </button>
+          </div>
+          <span class="zoom-label">100%</span>
+          <button v-if="previewUrl" class="toolbar-icon" type="button" aria-label="在新窗口打开" @click="openInNewTab">
+            <ExportOutlined />
+          </button>
         </div>
+
         <div class="preview-content">
           <div v-if="!previewUrl && !isGenerating" class="preview-placeholder">
             <CodeOutlined class="placeholder-icon" />
-            <p>网站文件生成完成后将在这里展示</p>
+            <p>网站生成完成后会在这里实时呈现</p>
           </div>
           <div v-else-if="isGenerating" class="preview-loading">
             <a-spin size="large" />
-            <p>正在生成网站...</p>
+            <p>正在生成网站</p>
           </div>
-          <iframe
-            v-else
-            :src="previewUrl"
-            class="preview-iframe"
-            frameborder="0"
-            @load="onIframeLoad"
-          ></iframe>
+          <div v-else class="preview-stage" :class="`viewport-${previewViewport}`">
+            <iframe
+              :src="previewUrl"
+              class="preview-iframe"
+              frameborder="0"
+              title="生成网站预览"
+              @load="onIframeLoad"
+            ></iframe>
+          </div>
         </div>
-      </div>
-    </div>
+      </section>
 
-    <!-- 应用详情弹窗 -->
+      <aside class="inspector-section" aria-label="页面编辑器">
+        <div class="inspector-block page-block">
+          <h2>页面</h2>
+          <button class="page-row active" type="button"><CodeOutlined /> 当前页面</button>
+        </div>
+        <div class="inspector-block selection-block">
+          <h2>选择元素</h2>
+          <template v-if="selectedElementInfo">
+            <div class="selected-summary">
+              <strong>{{ selectedElementInfo.tagName.toLowerCase() }}</strong>
+              <span v-if="selectedElementInfo.textContent">
+                {{ selectedElementInfo.textContent.substring(0, 60) }}
+              </span>
+              <code>{{ selectedElementInfo.selector }}</code>
+            </div>
+            <button class="clear-selection" type="button" @click="clearSelectedElement">清除选择</button>
+          </template>
+          <p v-else>进入编辑模式后，在预览中选择元素，可直接修改内容与样式。</p>
+          <button
+            v-if="isOwner && previewUrl"
+            class="edit-button"
+            :class="{ active: isEditMode }"
+            type="button"
+            @click="toggleEditMode"
+          >
+            <EditOutlined />
+            {{ isEditMode ? '退出编辑模式' : '进入编辑模式' }}
+          </button>
+        </div>
+      </aside>
+    </main>
+
     <AppDetailModal
       v-model:open="appDetailVisible"
       :app="appInfo"
@@ -199,8 +191,6 @@
       @edit="editApp"
       @delete="deleteApp"
     />
-
-    <!-- 部署成功弹窗 -->
     <DeploySuccessModal
       v-model:open="deployModalVisible"
       :deploy-url="deployUrl"
@@ -226,7 +216,6 @@ import request from '@/request'
 import MarkdownRenderer from '@/components/MarkdownRenderer.vue'
 import AppDetailModal from '@/components/AppDetailModal.vue'
 import DeploySuccessModal from '@/components/DeploySuccessModal.vue'
-import aiAvatar from '@/assets/aiAvatar.png'
 import { API_BASE_URL, getStaticPreviewUrl } from '@/config/env'
 import { VisualEditor, type ElementInfo } from '@/utils/visualEditor'
 
@@ -238,6 +227,9 @@ import {
   DownloadOutlined,
   EditOutlined,
   CodeOutlined,
+  DesktopOutlined,
+  TabletOutlined,
+  MobileOutlined,
 } from '@ant-design/icons-vue'
 
 const route = useRoute()
@@ -270,6 +262,21 @@ const historyLoaded = ref(false)
 // 预览相关
 const previewUrl = ref('')
 const previewReady = ref(false)
+const previewViewport = ref<'desktop' | 'tablet' | 'mobile'>('desktop')
+const viewportOptions = [
+  { value: 'desktop' as const, label: '桌面预览', icon: DesktopOutlined },
+  { value: 'tablet' as const, label: '平板预览', icon: TabletOutlined },
+  { value: 'mobile' as const, label: '手机预览', icon: MobileOutlined },
+]
+const previewDisplayUrl = computed(() => {
+  if (!previewUrl.value) return '等待生成预览'
+  try {
+    const url = new URL(previewUrl.value, window.location.origin)
+    return `${url.host}${url.pathname}`
+  } catch {
+    return previewUrl.value
+  }
+})
 
 // 部署相关
 const deploying = ref(false)
@@ -751,7 +758,7 @@ const getInputPlaceholder = () => {
   if (selectedElementInfo.value) {
     return `正在编辑 ${selectedElementInfo.value.tagName.toLowerCase()} 元素，描述您想要的修改...`
   }
-  return '请描述你想生成的网站，越详细效果越好哦'
+  return '描述要修改的内容'
 }
 
 // 页面加载时获取应用信息
@@ -1012,5 +1019,605 @@ onUnmounted(() => {
   .chat-section,
   .preview-section { min-height: 560px; }
   .message-content { max-width: 88%; }
+}
+
+/* Three-zone light studio matching the approved design reference. */
+#appChatPage {
+  height: 100dvh;
+  padding: 0;
+  background: #f4f5f1;
+  color: #11130f;
+}
+
+.studio-header {
+  min-height: 76px;
+  padding: 0 20px;
+  border-bottom: 1px solid #e1e4dc;
+  background: rgba(255, 255, 255, 0.96);
+  display: grid;
+  grid-template-columns: minmax(300px, 1fr) auto minmax(300px, 1fr);
+  align-items: center;
+  gap: 18px;
+}
+
+.studio-identity,
+.studio-brand,
+.studio-actions,
+.project-name,
+.workspace-switcher,
+.preview-toolbar,
+.browser-address,
+.viewport-controls {
+  display: flex;
+  align-items: center;
+}
+
+.studio-identity {
+  min-width: 0;
+  gap: 16px;
+}
+
+.studio-brand {
+  flex: 0 0 auto;
+  gap: 10px;
+  color: #11130f;
+  font-size: 20px;
+  text-decoration: none;
+}
+
+.studio-mark {
+  position: relative;
+  width: 30px;
+  height: 26px;
+}
+
+.studio-mark i {
+  position: absolute;
+  width: 28px;
+  height: 9px;
+  border-radius: 2px;
+  background: #11130f;
+  transform: skewX(-30deg);
+}
+
+.studio-mark i:last-child {
+  top: 15px;
+  transform: skewX(-30deg) rotate(180deg);
+}
+
+.header-divider {
+  width: 1px;
+  height: 28px;
+  background: #dfe2da;
+}
+
+.project-name {
+  min-width: 0;
+  padding: 8px 0;
+  border: 0;
+  background: transparent;
+  color: #20231f;
+  cursor: pointer;
+  font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.project-name span,
+.project-name b {
+  margin-right: 8px;
+  color: #747a72;
+  font-weight: 500;
+}
+
+.workspace-switcher {
+  padding: 3px;
+  border: 1px solid #dfe2da;
+  border-radius: 13px;
+  background: #f7f8f4;
+}
+
+.workspace-switcher button {
+  min-width: 76px;
+  padding: 9px 18px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: #676d65;
+  font-weight: 700;
+}
+
+.workspace-switcher button.active {
+  border: 1px solid #b0dd2c;
+  background: #f7ffdc;
+  color: #11130f;
+}
+
+.workspace-switcher button:disabled {
+  cursor: not-allowed;
+  opacity: 0.48;
+}
+
+.studio-actions {
+  justify-content: flex-end;
+  gap: 9px;
+}
+
+.mode-label {
+  padding: 7px 10px;
+  color: #646a62;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.studio-actions :deep(.ant-btn) {
+  height: 42px;
+  padding: 0 17px;
+  border-color: #dfe2da;
+  border-radius: 11px;
+  background: #fff;
+  color: #11130f;
+  box-shadow: none;
+  font-weight: 700;
+}
+
+.studio-actions :deep(.deploy-button) {
+  border-color: #11130f !important;
+  background: #11130f !important;
+  color: #fff !important;
+}
+
+.studio-main {
+  min-height: 0;
+  flex: 1;
+  padding: 12px;
+  display: grid;
+  grid-template-columns: minmax(290px, 330px) minmax(520px, 1fr) minmax(220px, 250px);
+  gap: 12px;
+}
+
+.chat-section,
+.preview-section,
+.inspector-section {
+  min-height: 0;
+  border: 1px solid #dfe2da;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 12px 36px rgba(41, 48, 32, 0.035);
+  overflow: hidden;
+}
+
+.chat-section,
+.preview-section,
+.inspector-section {
+  display: flex;
+  flex-direction: column;
+}
+
+.panel-heading {
+  min-height: 76px;
+  padding: 16px 18px;
+  border-bottom: 1px solid #eceee8;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.panel-heading p,
+.panel-heading span {
+  display: block;
+  margin: 0;
+}
+
+.panel-heading p {
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.panel-heading span {
+  margin-top: 4px;
+  color: #7b8178;
+  font-size: 12px;
+}
+
+.panel-heading button {
+  width: 34px;
+  height: 34px;
+  border: 0;
+  border-radius: 9px;
+  background: #f2f3ef;
+  color: #555b53;
+  cursor: pointer;
+}
+
+.messages-container {
+  padding: 18px 16px;
+  background: #fbfcf9;
+}
+
+.message-item {
+  margin-bottom: 20px;
+}
+
+.user-message,
+.ai-message {
+  justify-content: flex-start;
+  gap: 10px;
+}
+
+.message-avatar {
+  flex: 0 0 auto;
+}
+
+.ai-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #11130f;
+  color: #fff;
+  display: grid;
+  place-items: center;
+  font-weight: 800;
+}
+
+.message-content {
+  max-width: calc(100% - 42px);
+  padding: 12px 14px;
+  border-radius: 12px;
+  color: #252824;
+  font-size: 13px;
+}
+
+.user-message .message-content {
+  border: 1px solid #e2e5dd;
+  border-bottom-left-radius: 4px;
+  border-bottom-right-radius: 12px;
+  background: #f1f2ee;
+  color: #252824;
+}
+
+.ai-message .message-content {
+  border: 1px solid #e2e5dd;
+  border-bottom-left-radius: 4px;
+  background: #fff;
+  color: #252824;
+}
+
+.loading-indicator {
+  color: #727870;
+}
+
+.empty-conversation {
+  min-height: 100%;
+  padding: 30px 20px;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  text-align: center;
+}
+
+.empty-conversation > span {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: #11130f;
+  color: #fff;
+  display: grid;
+  place-items: center;
+  font-weight: 800;
+}
+
+.empty-conversation h2 {
+  margin: 18px 0 0;
+  font-size: 20px;
+}
+
+.empty-conversation p {
+  margin: 8px 0 0;
+  color: #747a72;
+  font-size: 13px;
+}
+
+.input-container {
+  padding: 14px;
+  border-top-color: #eceee8;
+  background: #fff;
+}
+
+.input-wrapper :deep(textarea.ant-input) {
+  min-height: 86px;
+  padding: 13px 50px 13px 13px;
+  border-color: #dfe2da !important;
+  border-radius: 12px;
+  background: #fff !important;
+  color: #11130f !important;
+  box-shadow: none !important;
+}
+
+.input-wrapper :deep(textarea.ant-input::placeholder) {
+  color: #8b9088 !important;
+}
+
+.input-actions :deep(.ant-btn) {
+  border-radius: 999px;
+}
+
+.preview-toolbar {
+  min-height: 58px;
+  padding: 9px 12px;
+  border-bottom: 1px solid #eceee8;
+  gap: 10px;
+}
+
+.browser-address {
+  min-width: 0;
+  flex: 1;
+  height: 38px;
+  padding: 0 13px;
+  border-radius: 10px;
+  background: #f1f2ee;
+  color: #777d74;
+  font-size: 12px;
+  overflow: hidden;
+}
+
+.browser-address > span:last-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.browser-dots {
+  margin-right: 12px;
+  display: flex;
+  gap: 5px;
+}
+
+.browser-dots i {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #cfd3ca;
+}
+
+.browser-dots i:first-child {
+  background: #c8f43d;
+}
+
+.viewport-controls {
+  padding: 3px;
+  border: 1px solid #e1e4dc;
+  border-radius: 10px;
+  gap: 2px;
+}
+
+.viewport-controls button,
+.toolbar-icon {
+  width: 32px;
+  height: 30px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: #6f756d;
+  cursor: pointer;
+}
+
+.viewport-controls button.active {
+  outline: 1px solid #aed82e;
+  background: #f5ffda;
+  color: #11130f;
+}
+
+.zoom-label {
+  padding: 8px 10px;
+  border: 1px solid #e1e4dc;
+  border-radius: 10px;
+  color: #555b53;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.preview-content {
+  margin: 0;
+  border-radius: 0;
+  background: #eceee8;
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  overflow: auto;
+}
+
+.preview-stage {
+  width: 100%;
+  height: 100%;
+  margin: 0 auto;
+  background: #fff;
+  box-shadow: 0 14px 48px rgba(33, 39, 27, 0.12);
+  transition: width 220ms ease;
+}
+
+.preview-stage.viewport-tablet {
+  width: min(768px, 100%);
+}
+
+.preview-stage.viewport-mobile {
+  width: min(390px, 100%);
+}
+
+.preview-placeholder,
+.preview-loading {
+  width: 100%;
+  color: #757b73;
+}
+
+.placeholder-icon {
+  color: #a9db1e;
+}
+
+.inspector-section {
+  background: #fff;
+}
+
+.inspector-block {
+  padding: 20px;
+}
+
+.inspector-block + .inspector-block {
+  border-top: 1px solid #eceee8;
+}
+
+.inspector-block h2 {
+  margin: 0 0 16px;
+  color: #11130f;
+  font-size: 16px;
+}
+
+.page-block {
+  min-height: 190px;
+}
+
+.page-row {
+  width: 100%;
+  padding: 12px 13px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  background: transparent;
+  color: #4f554d;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-align: left;
+}
+
+.page-row.active {
+  border-color: #b4df37;
+  background: #f7ffdf;
+  color: #11130f;
+}
+
+.selection-block {
+  flex: 1;
+}
+
+.selection-block > p {
+  margin: 0 0 18px;
+  color: #747a72;
+  font-size: 13px;
+  line-height: 1.65;
+}
+
+.selected-summary {
+  margin-bottom: 14px;
+  padding: 13px;
+  border-radius: 10px;
+  background: #f3f4f0;
+  display: grid;
+  gap: 7px;
+}
+
+.selected-summary span,
+.selected-summary code {
+  color: #70766e;
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+
+.clear-selection {
+  margin-bottom: 12px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #62685f;
+  cursor: pointer;
+}
+
+.edit-button {
+  width: 100%;
+  min-height: 42px;
+  border: 1px solid #b4df37;
+  border-radius: 10px;
+  background: #fff;
+  color: #11130f;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.edit-button.active {
+  background: #c8f43d;
+}
+
+@media (max-width: 1180px) {
+  .studio-header {
+    grid-template-columns: minmax(280px, 1fr) auto;
+  }
+
+  .workspace-switcher {
+    display: none;
+  }
+
+  .studio-main {
+    grid-template-columns: minmax(280px, 320px) minmax(480px, 1fr);
+  }
+
+  .inspector-section {
+    display: none;
+  }
+}
+
+@media (max-width: 820px) {
+  #appChatPage {
+    height: auto;
+    min-height: 100dvh;
+  }
+
+  .studio-header {
+    min-height: auto;
+    padding: 14px;
+    grid-template-columns: 1fr;
+  }
+
+  .studio-actions {
+    justify-content: flex-start;
+  }
+
+  .mode-label {
+    display: none;
+  }
+
+  .studio-main {
+    grid-template-columns: 1fr;
+  }
+
+  .chat-section,
+  .preview-section {
+    min-height: 620px;
+  }
+}
+
+@media (max-width: 560px) {
+  .studio-brand strong,
+  .header-divider,
+  .project-name span,
+  .project-name b {
+    display: none;
+  }
+
+  .studio-actions :deep(.ant-btn) {
+    flex: 1;
+  }
+
+  .preview-toolbar {
+    flex-wrap: wrap;
+  }
+
+  .browser-address {
+    flex-basis: 100%;
+  }
+
+  .zoom-label {
+    margin-left: auto;
+  }
 }
 </style>

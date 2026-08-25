@@ -16,14 +16,15 @@
 <style scoped>
 .site-footer {
   padding: 0 20px 28px;
-  background: var(--ink);
+  background: #f7f8f4;
+  color: #11130f;
 }
 
 .footer-shell {
   width: min(1180px, 100%);
   margin: 0 auto;
   padding: 30px 0 10px;
-  border-top: 1px solid var(--line);
+  border-top: 1px solid #dfe2d8;
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
@@ -38,7 +39,7 @@
 
 p,
 .footer-meta {
-  color: var(--muted);
+  color: #6d736b;
   font-size: 14px;
 }
 
@@ -52,7 +53,7 @@ p {
 }
 
 .footer-meta a {
-  color: var(--paper);
+  color: #11130f;
 }
 
 @media (max-width: 620px) {

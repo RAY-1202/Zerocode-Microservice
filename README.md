@@ -15,6 +15,8 @@
   <img src="docs/home-mobile.webp" width="320" alt="Zerocode mobile home" />
 </p>
 
+![Zerocode creation studio](docs/studio-desktop.webp)
+
 ## 功能
 
 - 账号注册、登录与会话管理
@@ -154,4 +156,4 @@ npx wrangler deploy
 
 ## 视觉来源
 
-界面使用 Taste 设计方法重构。首屏视觉由 GPT Image 生成后转为 WebP，提示词方向为黑色石墨背景、酸性绿色高光、模块化界面平面、无文字、无标志、无人物，并用于产品首屏展示。
+界面使用 Taste 设计方法重构，并参考 Lovable 的清晰创作路径。新版采用暖白背景、酸橙绿单一强调色、宽松留白和紧凑的三栏工作台。首屏工作台预览由 GPT Image 生成并转为 WebP，README 截图来自真实浏览器渲染。

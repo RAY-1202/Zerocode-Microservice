@@ -10,6 +10,7 @@ import { addApp, listGoodAppVoByPage, listMyAppVoByPage } from '@/api/appControl
 import { getDeployUrl } from '@/config/env'
 import AppCard from '@/components/AppCard.vue'
 import heroImage from '@/assets/zerocode-hero.webp'
+import studioPreview from '@/assets/zerocode-studio-preview.webp'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -198,23 +199,22 @@ onUnmounted(() => {
   <main ref="pageRoot" class="home-page">
     <section class="hero-section">
       <div class="hero-copy">
-        <p class="eyebrow"><span></span> AI 原生网站工作室</p>
-        <h1>把一句想法，<br />变成可运行的网站。</h1>
-        <p class="hero-lead">描述你的产品、作品或业务。Zerocode 会完成结构、界面、代码与预览，让想法更快进入真实世界。</p>
+        <h1>一句话，<br />做出真正的网站。</h1>
+        <p class="hero-lead">描述你的想法，实时生成、预览、编辑并发布。</p>
 
         <div class="composer">
           <a-textarea
             v-model:value="userPrompt"
             aria-label="网站需求描述"
-            placeholder="例如：为一家独立咖啡品牌创建一个有杂志感的官网，包含品牌故事、菜单和门店信息。"
+            placeholder="做一个深圳城市探索网站，包含景点、美食和路线推荐"
             :auto-size="{ minRows: 3, maxRows: 7 }"
             :maxlength="1000"
             @keydown="handleComposerKeydown"
           />
           <div class="composer-footer">
-            <span>描述越具体，生成结果越接近你的预期</span>
+            <span>网页</span>
             <a-button type="primary" :loading="creating" aria-label="开始生成" @click="createApp">
-              开始生成 <ArrowUpOutlined />
+              生成网站 <ArrowUpOutlined />
             </a-button>
           </div>
         </div>
@@ -226,22 +226,14 @@ onUnmounted(() => {
         </div>
       </div>
 
-      <div class="hero-visual" :style="{ backgroundImage: `url(${heroImage})` }">
-        <div class="visual-status">
-          <span class="status-dot"></span>
-          <span>从提示词到可交付页面</span>
-          <strong>LIVE</strong>
+      <div class="hero-visual" aria-label="Zerocode 创作工作台预览">
+        <div class="browser-chrome">
+          <span></span><span></span><span></span>
+          <div>app.zerocode.site</div>
         </div>
+        <img :src="studioPreview" alt="Zerocode 对话生成与实时预览工作台" />
       </div>
     </section>
-
-    <div class="marquee" aria-hidden="true">
-      <div class="marquee-track">
-        <span v-for="repeat in 2" :key="repeat">
-          自然语言建站　实时预览　可视化修改　一键部署　代码下载　响应式页面　
-        </span>
-      </div>
-    </div>
 
     <section class="capability-section content-shell">
       <div class="section-heading">
@@ -836,5 +828,291 @@ h1 {
 @media (prefers-reduced-motion: reduce) {
   .marquee-track { animation: none; }
   * { scroll-behavior: auto !important; }
+}
+
+/* Lovable-inspired light product language, translated to the Zerocode brand. */
+.home-page {
+  --ink: #11130f;
+  --paper: #f7f8f4;
+  --muted: #6d736b;
+  --line: #dfe2d8;
+  --acid: #c8f43d;
+  --acid-deep: #a9db1e;
+  --cobalt: #727970;
+  background:
+    radial-gradient(circle at 86% 12%, rgba(200, 244, 61, 0.09), transparent 24%),
+    #f7f8f4;
+  color: #11130f;
+}
+
+.content-shell,
+.hero-section {
+  width: min(1440px, calc(100% - 64px));
+}
+
+.hero-section {
+  position: relative;
+  min-height: 930px;
+  padding: 188px 0 110px;
+  text-align: left;
+}
+
+.hero-copy {
+  width: min(770px, 56vw);
+}
+
+h1 {
+  max-width: 770px;
+  margin: 0;
+  font-size: clamp(3.8rem, 5.2vw, 5.4rem);
+  font-weight: 760;
+  letter-spacing: -0.07em;
+  line-height: 0.98;
+}
+
+.hero-lead {
+  max-width: 560px;
+  margin: 28px 0 0;
+  color: #747a72;
+  font-size: clamp(1.05rem, 1.5vw, 1.35rem);
+  line-height: 1.55;
+}
+
+.composer {
+  max-width: 720px;
+  margin: 42px 0 0;
+  padding: 14px;
+  border-color: rgba(169, 219, 30, 0.72);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 24px 70px rgba(54, 64, 39, 0.08);
+}
+
+.composer :deep(textarea.ant-input) {
+  min-height: 92px;
+  color: #11130f !important;
+}
+
+.composer :deep(textarea.ant-input::placeholder) {
+  color: #737970 !important;
+}
+
+.composer-footer {
+  border-top-color: #eceee8;
+}
+
+.composer-footer > span {
+  min-width: 72px;
+  padding: 8px 12px;
+  border: 1px solid #e1e4dc;
+  border-radius: 999px;
+  color: #4e544c;
+  font-weight: 700;
+  text-align: center;
+}
+
+.composer-footer :deep(.ant-btn) {
+  border-radius: 999px;
+}
+
+.prompt-shortcuts {
+  justify-content: flex-start;
+}
+
+.prompt-shortcuts button {
+  border-color: #dfe2d8;
+  color: #656b63;
+}
+
+.prompt-shortcuts button:hover {
+  border-color: #a9db1e;
+  color: #11130f;
+}
+
+.hero-visual {
+  position: absolute;
+  right: -110px;
+  bottom: 56px;
+  width: min(760px, 53vw);
+  min-height: 0;
+  margin: 0;
+  border-color: #dfe2d8;
+  border-radius: 24px;
+  background: #fff;
+  box-shadow: 0 40px 110px rgba(54, 64, 39, 0.13);
+  transform: rotate(-1.2deg);
+}
+
+.hero-visual::after {
+  display: none;
+}
+
+.hero-visual img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.browser-chrome {
+  height: 46px;
+  padding: 0 14px;
+  border-bottom: 1px solid #eceee8;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.browser-chrome > span {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #d6d9d1;
+}
+
+.browser-chrome > span:first-child {
+  background: #c8f43d;
+}
+
+.browser-chrome > div {
+  min-width: 220px;
+  margin-left: 9px;
+  padding: 7px 14px;
+  border-radius: 999px;
+  background: #f3f4f0;
+  color: #858b82;
+  font-size: 11px;
+}
+
+.capability-section,
+.workflow-section,
+.projects-section {
+  padding: 150px 0;
+}
+
+.section-heading h2,
+.workflow-copy h2,
+.final-cta h2 {
+  color: #11130f;
+}
+
+.eyebrow {
+  color: #737970;
+}
+
+.eyebrow span {
+  background: #c8f43d;
+}
+
+.bento-card,
+.workflow-rail article,
+.app-card {
+  border-color: #dfe2d8;
+  background: #fff;
+}
+
+.dark-card {
+  background: #151713;
+  color: #f7f8f4;
+}
+
+.statement {
+  color: #11130f;
+}
+
+.workflow-copy p:last-child,
+.workflow-rail p,
+.section-heading.horizontal > span {
+  color: #6d736b;
+}
+
+.workflow-rail article.active,
+.workflow-rail article:hover {
+  border-color: rgba(169, 219, 30, 0.8);
+  box-shadow: 0 20px 55px rgba(54, 64, 39, 0.08);
+}
+
+.empty-projects {
+  border-color: #d4d8ce;
+  color: #6d736b;
+}
+
+.final-cta {
+  background: #c8f43d;
+  color: #11130f;
+}
+
+.final-cta p {
+  color: #4d561f;
+}
+
+@media (max-width: 1050px) {
+  .hero-section {
+    min-height: auto;
+    padding-top: 150px;
+  }
+
+  .hero-copy {
+    width: 100%;
+  }
+
+  .hero-visual {
+    position: relative;
+    right: auto;
+    bottom: auto;
+    width: 100%;
+    margin-top: 64px;
+    transform: none;
+  }
+}
+
+@media (max-width: 680px) {
+  .content-shell,
+  .hero-section {
+    width: calc(100% - 28px);
+  }
+
+  .hero-section {
+    padding-top: 122px;
+  }
+
+  h1 {
+    font-size: clamp(2.75rem, 11.5vw, 3.4rem);
+  }
+
+  .composer {
+    margin-top: 30px;
+  }
+
+  .composer-footer {
+    align-items: center;
+    flex-direction: row;
+  }
+
+  .composer-footer > span {
+    display: inline-block;
+  }
+
+  .composer-footer :deep(.ant-btn) {
+    width: auto;
+  }
+
+  .prompt-shortcuts {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+  }
+
+  .prompt-shortcuts button {
+    white-space: nowrap;
+  }
+
+  .hero-visual {
+    min-height: 0;
+    margin-top: 42px;
+  }
+
+  .browser-chrome > div {
+    min-width: 0;
+    flex: 1;
+  }
 }
 </style>

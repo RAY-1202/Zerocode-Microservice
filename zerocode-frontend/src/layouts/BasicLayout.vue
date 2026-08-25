@@ -1,16 +1,21 @@
 <template>
   <a-layout class="basic-layout">
-    <GlobalHeader />
+    <GlobalHeader v-if="!immersiveRoute" />
     <a-layout-content class="main-content">
       <router-view />
     </a-layout-content>
-    <GlobalFooter />
+    <GlobalFooter v-if="!immersiveRoute" />
   </a-layout>
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
+import { useRoute } from 'vue-router'
 import GlobalHeader from '@/components/GlobalHeader.vue'
 import GlobalFooter from '@/components/GlobalFooter.vue'
+
+const route = useRoute()
+const immersiveRoute = computed(() => route.path.startsWith('/app/chat/'))
 </script>
 
 <style scoped>
