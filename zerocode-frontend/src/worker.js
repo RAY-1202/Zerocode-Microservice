@@ -26,6 +26,13 @@ export class ZerocodeContainer extends Container {
     COS_BUCKET: env.COS_BUCKET,
     CODE_DEPLOY_HOST: 'https://zerocode-microservice.yray1202.workers.dev/api/deploy',
   }
+
+  async fetch(request) {
+    await this.startAndWaitForPorts({
+      cancellationOptions: { abort: request.signal, portReadyTimeoutMS: 60_000 },
+    })
+    return super.fetch(request)
+  }
 }
 
 export default {
