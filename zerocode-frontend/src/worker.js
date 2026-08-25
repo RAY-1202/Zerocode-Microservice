@@ -29,6 +29,7 @@ export class ZerocodeContainer extends Container {
 
   async fetch(request) {
     await this.startAndWaitForPorts({
+      ports: apiPort(new URL(request.url).pathname),
       cancellationOptions: { abort: request.signal, portReadyTimeoutMS: 60_000 },
     })
     return super.fetch(request)
