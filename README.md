@@ -7,8 +7,6 @@
 
 从一句自然语言需求开始，生成、预览、修改、下载并发布一个可访问的网站。仓库采用前后端单仓结构，包含 Vue 3 创作工作台和 Spring Boot 微服务。
 
-[在线体验](https://zerocode-microservice.yray1202.workers.dev)
-
 ![Zerocode desktop home](docs/home-desktop.webp)
 
 <p align="center">
