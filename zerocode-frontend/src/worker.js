@@ -5,7 +5,7 @@ import { apiPort } from './worker-routing.js'
 export class ZerocodeContainer extends Container {
   defaultPort = 8125
   requiredPorts = [8124, 8125, 8127]
-  sleepAfter = '24h'
+  sleepAfter = '10m'
   envVars = {
     MYSQL_URL:
       'jdbc:mysql://127.0.0.1:3306/zerocode_microservice?useUnicode=true&characterEncoding=utf-8&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai',
